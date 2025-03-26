@@ -165,149 +165,278 @@ function setupScrollTriggers() {
             trigger: "body",
             start: "top top",
             end: "bottom bottom",
-            scrub: 1
+            scrub: true,
+            ease: "power2.inOut"
         }
     });
     
     // Camera movement sequence
     tl.to(targetCameraPosition, {
-        z: 5, // Move slightly into the tunnel
-        duration: 10
+        z: 8, // Start with a small zoom out effect
+        duration: 5
+    })
+    .to(targetCameraPosition, {
+        z: 5, // Then zoom in slightly into the tunnel
+        duration: 8
     })
     .to(targetCameraPosition, {
         z: -5, // Move deeper into the tunnel for "You jump" text
+        y: 1, // Add subtle vertical movement
+        x: 0.5, // Add subtle horizontal movement
         duration: 10
     })
     .to(targetCameraPosition, {
         z: -15, // Move to the black hole area for "We jump" text
+        y: -1, // Continue the subtle movements for added dynamism
+        x: -0.5,
         duration: 10
     })
     .to(targetCameraPosition, {
         z: -25, // Move through the black hole
-        duration: 10
+        y: 0, // Return to center
+        x: 0,
+        duration: 12
     });
     
-    // Text animations
+    // Text animations with enhanced effects
     ScrollTrigger.create({
         trigger: "#jump",
         start: "top center",
         end: "bottom center",
         onEnter: () => {
-            gsap.to("#jump", { opacity: 1, duration: 1 });
+            gsap.to("#jump", { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: "power3.out" });
         },
         onLeave: () => {
-            gsap.to("#jump", { opacity: 0, duration: 1 });
+            gsap.to("#jump", { opacity: 0, y: -30, duration: 0.8, ease: "power2.in" });
         },
         onEnterBack: () => {
-            gsap.to("#jump", { opacity: 1, duration: 1 });
+            gsap.to("#jump", { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: "power3.out" });
         },
         onLeaveBack: () => {
-            gsap.to("#jump", { opacity: 0, duration: 1 });
+            gsap.to("#jump", { opacity: 0, y: 30, duration: 0.8, ease: "power2.in" });
         }
     });
+    
+    // Initial state for jump section
+    gsap.set("#jump", { opacity: 0, y: 30, scale: 0.95 });
     
     ScrollTrigger.create({
         trigger: "#jump2",
         start: "top center",
         end: "bottom center",
         onEnter: () => {
-            gsap.to("#jump2", { opacity: 1, duration: 1 });
+            gsap.to("#jump2", { opacity: 1, y: 0, scale: 1, duration: 1.5, ease: "elastic.out(1, 0.5)" });
             
-            // Start showing black hole
+            // Start showing black hole with a more dramatic effect
             gsap.to(blackHoleUniforms.uIntensity, {
                 value: 0.9,
-                duration: 2
+                duration: 2.5,
+                ease: "power3.inOut"
+            });
+            
+            // Add a subtle camera shake effect
+            gsap.to(camera.rotation, {
+                x: "-=0.03",
+                y: "+=0.03",
+                z: "-=0.01",
+                duration: 0.5,
+                repeat: 3,
+                yoyo: true,
+                ease: "power1.inOut"
             });
         },
         onLeave: () => {
-            gsap.to("#jump2", { opacity: 0, duration: 1 });
+            gsap.to("#jump2", { opacity: 0, y: -40, scale: 0.9, duration: 0.8, ease: "back.in(1.5)" });
         },
         onEnterBack: () => {
-            gsap.to("#jump2", { opacity: 1, duration: 1 });
+            gsap.to("#jump2", { opacity: 1, y: 0, scale: 1, duration: 1.5, ease: "elastic.out(1, 0.5)" });
         },
         onLeaveBack: () => {
-            gsap.to("#jump2", { opacity: 0, duration: 1 });
+            gsap.to("#jump2", { opacity: 0, y: 40, scale: 0.9, duration: 0.8, ease: "back.in(1.5)" });
         }
     });
     
-    // Black hole expansion and transition to content
+    // Initial state for jump2 section
+    gsap.set("#jump2", { opacity: 0, y: 40, scale: 0.9 });
+    
+    // Enhanced black hole expansion and transition to content
     ScrollTrigger.create({
         trigger: "#about",
         start: "top 80%",
         onEnter: () => {
+            // Create a timeline for coordinated transition
+            const transitionTl = gsap.timeline();
+            
             // Expand black hole
-            gsap.to(blackHoleUniforms.uRadius, {
+            transitionTl.to(blackHoleUniforms.uRadius, {
                 value: 0.8,
-                duration: 2
-            });
+                duration: 2.5,
+                ease: "elastic.out(1, 0.7)"
+            }, 0);
             
             // Move black hole forward
-            gsap.to(blackHole.position, {
+            transitionTl.to(blackHole.position, {
                 z: -15,
-                duration: 2
-            });
+                duration: 2,
+                ease: "power2.inOut"
+            }, 0);
+            
+            // Add rotation to black hole
+            transitionTl.to(blackHole.rotation, {
+                z: Math.PI * 2,
+                duration: 4,
+                ease: "power1.inOut"
+            }, 0);
             
             // Increase black hole intensity
-            gsap.to(blackHoleUniforms.uIntensity, {
+            transitionTl.to(blackHoleUniforms.uIntensity, {
                 value: 1.0,
-                duration: 1
+                duration: 1.5,
+                ease: "power2.inOut"
+            }, 0.5);
+            
+            // Fade out all rings with staggered timing
+            rings.forEach((ring, index) => {
+                transitionTl.to(ring.material, {
+                    opacity: 0,
+                    duration: 1.5,
+                    ease: "power2.inOut"
+                }, 0.5 + index * 0.02); // Staggered timing
             });
             
-            // Fade out all rings
-            rings.forEach(ring => {
-                gsap.to(ring.material, {
-                    opacity: 0,
-                    duration: 1.5
-                });
-            });
+            // Add camera motion during transition
+            transitionTl.to(camera.rotation, {
+                x: 0.1,
+                y: -0.1,
+                duration: 2,
+                ease: "power1.inOut",
+                yoyo: true
+            }, 0);
         }
     });
     
-    // Intro content animation
-    gsap.from(".intro-content h1", {
-        y: 50,
-        opacity: 0,
-        duration: 1,
+    // Enhanced intro content animation
+    const introTl = gsap.timeline({
         delay: 0.5
     });
     
-    gsap.from(".footer", {
+    introTl.from(".intro-content h1", {
+        y: 70,
+        opacity: 0,
+        duration: 1.2,
+        ease: "power2.out"
+    })
+    .from(".tagline", {
         y: 30,
         opacity: 0,
         duration: 1,
-        delay: 1
+        ease: "power2.out"
+    }, "-=0.7")
+    .from(".footer", {
+        y: 30,
+        opacity: 0,
+        duration: 1,
+        ease: "power2.out"
+    }, "-=0.5");
+    
+    // Add subtle animation to the heading
+    gsap.to(".intro-content h1", {
+        y: -10,
+        duration: 5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut"
     });
     
-    // Content section animations
+    // Enhanced content section animations
     const contentSections = [".about-section", "#principles", "#team", "#portfolio"];
     
     contentSections.forEach(section => {
-        gsap.from(`${section} h2, ${section} h3, ${section} p, ${section} .number`, {
+        // Create a timeline for each section
+        let sectionTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: section,
+                start: "top 80%",
+                end: "center center",
+                toggleActions: "play none none reverse"
+            }
+        });
+        
+        // Animate heading first
+        sectionTl.from(`${section} h2`, {
+            y: 50,
+            opacity: 0,
+            duration: 1,
+            ease: "power2.out"
+        });
+        
+        // Then animate the rest with staggered timing
+        sectionTl.from(`${section} .number, ${section} h3, ${section} p`, {
             y: 30,
             opacity: 0,
             duration: 0.8,
-            stagger: 0.2,
-            scrollTrigger: {
+            stagger: 0.15,
+            ease: "power3.out"
+        }, "-=0.4");
+        
+        // Add subtle scroll-based parallax on section elements
+        if (section !== ".about-section") { // Skip for about section which has different layout
+            ScrollTrigger.create({
                 trigger: section,
-                start: "top 80%"
-            }
-        });
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+                onUpdate: (self) => {
+                    const elements = document.querySelectorAll(`${section} .section-item`);
+                    elements.forEach((el, i) => {
+                        gsap.to(el, {
+                            y: (i % 2 === 0) ? self.progress * -30 : self.progress * -20,
+                            duration: 0
+                        });
+                    });
+                }
+            });
+        }
     });
 }
 
-// Add mouse interaction for tilt effect
+// Enhanced mouse interaction for tilt effect
 function addMouseTiltEffect() {
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetMouseX = 0;
+    let targetMouseY = 0;
+    
+    // Track mouse movement
     document.addEventListener('mousemove', (event) => {
-        const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-        const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-        
-        // Subtle camera tilt based on mouse position
-        gsap.to(camera.rotation, {
-            x: mouseY * 0.05,
-            y: mouseX * 0.05,
-            duration: 1
-        });
+        targetMouseX = (event.clientX / window.innerWidth) * 2 - 1;
+        targetMouseY = -(event.clientY / window.innerHeight) * 2 + 1;
     });
+    
+    // Create smoother animation with requestAnimationFrame
+    function updateMouseTilt() {
+        // Smoothly interpolate mouse position for more fluid motion
+        mouseX += (targetMouseX - mouseX) * 0.05;
+        mouseY += (targetMouseY - mouseY) * 0.05;
+        
+        // Apply to camera rotation
+        camera.rotation.x = mouseY * 0.07;
+        camera.rotation.y = mouseX * 0.07;
+        
+        // Also influence the rings slightly
+        rings.forEach((ring, index) => {
+            const depth = index / rings.length; // 0 to 1 based on depth
+            const strengthFactor = 1 - depth * 0.7; // Rings closer to camera move more
+            
+            ring.rotation.x = mouseY * 0.02 * strengthFactor;
+            ring.rotation.y = mouseX * 0.02 * strengthFactor;
+        });
+        
+        requestAnimationFrame(updateMouseTilt);
+    }
+    
+    // Start the animation loop
+    updateMouseTilt();
 }
 
 // Smooth scrolling for anchor links
