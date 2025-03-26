@@ -8,7 +8,7 @@ body {
     font-family: 'Space Mono', monospace;
     color: white;
     overflow-x: hidden;
-    background: #111;
+    background: #111; /* Keeping the dark background here */
 }
 
 /* WebGL Container */
@@ -167,6 +167,7 @@ main {
     justify-content: center;
     opacity: 0;
     position: relative;
+    background-color: transparent; /* Ensuring background is transparent */
 }
 
 .text-section h2 {
@@ -185,7 +186,7 @@ main {
     align-items: center;
     justify-content: center;
     padding: 5rem 2rem;
-    background-color: #111;
+    background-color: transparent; /* Changed from #111 to transparent */
     position: relative;
     z-index: 2;
 }
@@ -223,7 +224,7 @@ main {
 .section {
     min-height: 100vh;
     padding: 5rem 2rem;
-    background-color: #111;
+    background-color: transparent; /* Changed from #111 to transparent */
     position: relative;
     z-index: 2;
     max-width: 1200px;

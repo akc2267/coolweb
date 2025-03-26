@@ -27,7 +27,7 @@ function init() {
     renderer = new THREE.WebGLRenderer({ 
         antialias: true, 
         alpha: true,
-        preserveDrawingBuffer: true
+        preserveDrawingBuffer: false // Changed to false to prevent artifacts
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -163,6 +163,11 @@ function animate() {
     // Update black hole uniforms
     blackHoleUniforms.uTime.value = elapsedTime;
     
+    // Check if we need to reset the black hole intensity when near the top
+    if (window.scrollY < 50) {
+        blackHoleUniforms.uIntensity.value = 0;
+    }
+    
     // Smooth camera movement
     currentCameraPosition.x += (targetCameraPosition.x - currentCameraPosition.x) * 0.05;
     currentCameraPosition.y += (targetCameraPosition.y - currentCameraPosition.y) * 0.05;
@@ -171,6 +176,16 @@ function animate() {
     camera.position.set(currentCameraPosition.x, currentCameraPosition.y, currentCameraPosition.z);
     
     renderer.render(scene, camera);
+}
+
+// Clean up function to reset the renderer and prevent artifacts
+function cleanupRenderer() {
+    renderer.clear();
+    
+    // Reset black hole if it's causing issues when scrolling back up
+    if (blackHole && blackHoleUniforms) {
+        blackHoleUniforms.uIntensity.value = 0;
+    }
 }
 
 // Set up scroll triggers
@@ -328,6 +343,19 @@ function setupScrollTriggers() {
                 ease: "power1.inOut",
                 yoyo: true
             }, 0);
+        }
+    });
+    
+    // Add scroll direction detection to trigger cleanup
+    ScrollTrigger.create({
+        trigger: "body",
+        start: "top top",
+        end: "bottom bottom",
+        onUpdate: (self) => {
+            // If scrolling back up to the top, run cleanup
+            if (self.direction === -1 && self.progress < 0.1) {
+                cleanupRenderer();
+            }
         }
     });
     

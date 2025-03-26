@@ -89,6 +89,11 @@ void main() {
     float animation = sin(dist * 20.0 - uTime) * 0.02;
     gradient += animation;
     
+    // Apply a threshold to avoid almost-transparent black areas
+    if (gradient * uIntensity < 0.05) {
+        discard; // Don't render pixels that are nearly transparent
+    }
+    
     // Black hole is pure black with varying alpha
     gl_FragColor = vec4(0.0, 0.0, 0.0, gradient * uIntensity);
 }
