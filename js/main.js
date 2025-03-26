@@ -1,373 +1,350 @@
-// Wait for DOM to be loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize GSAP ScrollTrigger
-    gsap.registerPlugin(ScrollTrigger);
-    
-    // Header background on scroll
-    const header = document.querySelector('.header');
-    
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
-    
-    // Initialize Hero Section Animation
-    initHeroAnimation();
-    
-    // Initialize WebGL Title Animations
-    initWebGLTitleAnimations();
-    
-    // Initialize Content Section Animations
-    initContentSectionAnimations();
-});
+// Initialize GSAP ScrollTrigger
+gsap.registerPlugin(ScrollTrigger);
 
-function initHeroAnimation() {
-    // Hero section fade out on scroll
-    gsap.to('.hero-section', {
-        scrollTrigger: {
-            trigger: '.scroll-spacer',
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true,
-            onUpdate: (self) => {
-                // Apply a subtle parallax effect to the hero content
-                gsap.to('.hero-content', {
-                    y: self.progress * 100,
-                    duration: 0.1
-                });
-            }
-        },
-        opacity: 0,
-        ease: 'power2.inOut'
+// Three.js Scene Setup
+let scene, camera, renderer;
+let rings = [];
+let blackHole;
+let targetCameraPosition = { x: 0, y: 0, z: 15 };
+let currentCameraPosition = { x: 0, y: 0, z: 15 };
+let clock;
+let uniforms = {};
+let blackHoleUniforms = {};
+
+// Initialize the 3D scene
+function init() {
+    // Create a clock for shader animations
+    clock = new THREE.Clock();
+    
+    // Create scene
+    scene = new THREE.Scene();
+    
+    // Create camera
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 15;
+    
+    // Create renderer
+    renderer = new THREE.WebGLRenderer({ 
+        antialias: true, 
+        alpha: true,
+        preserveDrawingBuffer: true
     });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setClearColor(0x000000, 0);
+    document.getElementById('webgl-container').appendChild(renderer.domElement);
     
-    // Animate hero title, tagline, and logo on page load
-    const heroTl = gsap.timeline();
+    // Create rainbow tunnel
+    createRainbowTunnel();
     
-    heroTl.from('.logo img', {
-        rotate: 360,
-        opacity: 0,
-        duration: 1.2,
-        ease: 'back.out(1.7)'
-    })
-    .from('.hero-title', {
-        y: 50,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out'
-    })
-    .from('.hero-tagline', {
-        y: 30,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out'
-    }, '-=0.5')
-    .from('.hero-footer', {
-        y: 20,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out'
-    }, '-=0.5');
+    // Create black hole
+    createBlackHole();
+    
+    // Set up resize handler
+    window.addEventListener('resize', onWindowResize);
+    
+    // Start animation loop
+    animate();
+    
+    // Set up scroll triggers
+    setupScrollTriggers();
 }
 
-function initWebGLTitleAnimations() {
-    // First WebGL section
-    gsap.to('.webgl-section:nth-of-type(1)', {
-        scrollTrigger: {
-            trigger: '.webgl-start',
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true
-        },
-        opacity: 1,
-        ease: 'power2.inOut'
-    });
+// Create rainbow tunnel with shader rings
+function createRainbowTunnel() {
+    const ringCount = 25;
+    const colorOffsetStep = 1.0 / ringCount;
     
-    // Second WebGL section
-    gsap.to('.webgl-section:nth-of-type(2)', {
-        scrollTrigger: {
-            trigger: '.scroll-spacer:nth-of-type(3)',
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true
-        },
-        opacity: 1,
-        ease: 'power2.inOut'
-    });
-    
-    // Fade out second WebGL section
-    gsap.to('.webgl-section:nth-of-type(2)', {
-        scrollTrigger: {
-            trigger: '.webgl-end',
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true
-        },
-        opacity: 0,
-        ease: 'power2.inOut'
-    });
-}
-
-function initContentSectionAnimations() {
-    // Animated logo in about section
-    gsap.to('#about .animated-logo img', {
-        scrollTrigger: {
-            trigger: '#about',
-            start: 'top center',
-            toggleActions: 'play none none none'
-        },
-        rotation: 360,
-        duration: 3,
-        ease: 'power1.inOut',
-        repeat: -1,
-        repeatDelay: 1
-    });
-    
-    // About section fade in
-    gsap.from('#about .section-header', {
-        scrollTrigger: {
-            trigger: '#about',
-            start: 'top center',
-            toggleActions: 'play none none none'
-        },
-        y: 100,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out'
-    });
-    
-    gsap.from('#about .section-content p', {
-        scrollTrigger: {
-            trigger: '#about',
-            start: 'top center',
-            toggleActions: 'play none none none'
-        },
-        y: 50,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.3,
-        ease: 'power3.out'
-    });
-    
-    // Principles section
-    gsap.from('#principles .numbered-heading', {
-        scrollTrigger: {
-            trigger: '#principles',
-            start: 'top center',
-            toggleActions: 'play none none none'
-        },
-        x: -50,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.3,
-        ease: 'power3.out'
-    });
-    
-    gsap.from('#principles p', {
-        scrollTrigger: {
-            trigger: '#principles',
-            start: 'top center',
-            toggleActions: 'play none none none'
-        },
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.3,
-        ease: 'power3.out'
-    });
-    
-    // Team section
-    gsap.from('#team .section-title', {
-        scrollTrigger: {
-            trigger: '#team',
-            start: 'top center',
-            toggleActions: 'play none none none'
-        },
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        ease: 'power3.out'
-    });
-    
-    gsap.from('#team .team-member', {
-        scrollTrigger: {
-            trigger: '#team',
-            start: 'top center',
-            toggleActions: 'play none none none'
-        },
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: 'power3.out'
-    });
-    
-    gsap.from('#team .supporters-title', {
-        scrollTrigger: {
-            trigger: '#team .supporters-title',
-            start: 'top bottom',
-            toggleActions: 'play none none none'
-        },
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        ease: 'power3.out'
-    });
-    
-    gsap.from('#team .supporters-list li', {
-        scrollTrigger: {
-            trigger: '#team .supporters-list',
-            start: 'top bottom',
-            toggleActions: 'play none none none'
-        },
-        y: 20,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: 'power3.out'
-    });
-    
-    // Portfolio section
-    gsap.from('#portfolio .section-title', {
-        scrollTrigger: {
-            trigger: '#portfolio',
-            start: 'top center',
-            toggleActions: 'play none none none'
-        },
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        ease: 'power3.out'
-    });
-    
-    gsap.from('#portfolio .portfolio-item', {
-        scrollTrigger: {
-            trigger: '#portfolio .portfolio-grid',
-            start: 'top bottom',
-            toggleActions: 'play none none none'
-        },
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power3.out'
-    });
-}
-
-// Smooth scrolling for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
+    for (let i = 0; i < ringCount; i++) {
+        // Create ring geometry - larger at the start, smaller toward the end
+        const radius = 10 - i * 0.2;
+        const geometry = new THREE.PlaneGeometry(radius * 2, radius * 2);
         
-        const targetId = this.getAttribute('href');
-        const targetElement = document.querySelector(targetId);
+        // Create uniform values for this ring
+        const ringUniforms = {
+            uTime: { value: 0 },
+            uColorOffset: { value: i * colorOffsetStep }
+        };
         
-        if (targetElement) {
-            // Get the target's position
-            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-            
-            // Animate scroll
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
-        }
-    });
-});
-
-// Add a canvas effect to simulate the WebGL background effect
-const canvas = document.createElement('canvas');
-canvas.classList.add('webgl-canvas');
-document.body.appendChild(canvas);
-
-// Position the canvas
-Object.assign(canvas.style, {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    zIndex: 0,
-    pointerEvents: 'none',
-    opacity: 0.5
-});
-
-const ctx = canvas.getContext('2d');
-
-// Set canvas dimensions
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+        // Create shader material
+        const material = new THREE.ShaderMaterial({
+            vertexShader: ringVertexShader,
+            fragmentShader: ringFragmentShader,
+            uniforms: ringUniforms,
+            transparent: true,
+            depthWrite: false,
+            side: THREE.DoubleSide
+        });
+        
+        // Create mesh and position it
+        const ring = new THREE.Mesh(geometry, material);
+        ring.position.z = -i * 1.2;
+        
+        // Add subtle initial rotation
+        ring.rotation.z = Math.random() * Math.PI * 2;
+        
+        // Store uniform reference for animation
+        ring.userData.uniforms = ringUniforms;
+        
+        // Add to scene and rings array
+        scene.add(ring);
+        rings.push(ring);
+    }
 }
 
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-// Simple particle system to simulate the WebGL effect
-const particles = [];
-const particleCount = 100;
-
-// Create particles
-for (let i = 0; i < particleCount; i++) {
-    particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 2 + 1,
-        speed: Math.random() * 1 + 0.5,
-        direction: Math.random() * Math.PI * 2,
-        color: `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.1})`
+// Create black hole with shader
+function createBlackHole() {
+    // Create geometry
+    const geometry = new THREE.PlaneGeometry(30, 30);
+    
+    // Create uniform values for black hole
+    blackHoleUniforms = {
+        uTime: { value: 0 },
+        uIntensity: { value: 0 },
+        uRadius: { value: 0.4 }
+    };
+    
+    // Create shader material
+    const material = new THREE.ShaderMaterial({
+        vertexShader: blackHoleVertexShader,
+        fragmentShader: blackHoleFragmentShader,
+        uniforms: blackHoleUniforms,
+        transparent: true,
+        depthWrite: false,
+        side: THREE.DoubleSide
     });
+    
+    // Create mesh and position it
+    blackHole = new THREE.Mesh(geometry, material);
+    blackHole.position.z = -20;
+    
+    // Add to scene
+    scene.add(blackHole);
+}
+
+// Handle window resize
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
     
-    // Clear canvas
-    ctx.fillStyle = 'rgba(20, 20, 20, 0.1)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Update time for shaders
+    const elapsedTime = clock.getElapsedTime();
     
-    // Update and draw particles
-    particles.forEach(particle => {
-        // Update position
-        particle.x += Math.cos(particle.direction) * particle.speed;
-        particle.y += Math.sin(particle.direction) * particle.speed;
+    // Update uniforms for all rings
+    rings.forEach((ring, index) => {
+        ring.userData.uniforms.uTime.value = elapsedTime;
         
-        // Wrap around edges
-        if (particle.x < 0) particle.x = canvas.width;
-        if (particle.x > canvas.width) particle.x = 0;
-        if (particle.y < 0) particle.y = canvas.height;
-        if (particle.y > canvas.height) particle.y = 0;
-        
-        // Draw particle
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        ctx.fillStyle = particle.color;
-        ctx.fill();
+        // Add subtle rotation
+        ring.rotation.z += 0.001 * (index % 2 === 0 ? 1 : -1);
     });
     
-    // Draw connections between particles
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-    ctx.lineWidth = 0.5;
+    // Update black hole uniforms
+    blackHoleUniforms.uTime.value = elapsedTime;
     
-    for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-            const dx = particles[i].x - particles[j].x;
-            const dy = particles[i].y - particles[j].y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            if (distance < 100) {
-                ctx.beginPath();
-                ctx.moveTo(particles[i].x, particles[i].y);
-                ctx.lineTo(particles[j].x, particles[j].y);
-                ctx.stroke();
-            }
-        }
-    }
+    // Smooth camera movement
+    currentCameraPosition.x += (targetCameraPosition.x - currentCameraPosition.x) * 0.05;
+    currentCameraPosition.y += (targetCameraPosition.y - currentCameraPosition.y) * 0.05;
+    currentCameraPosition.z += (targetCameraPosition.z - currentCameraPosition.z) * 0.05;
+    
+    camera.position.set(currentCameraPosition.x, currentCameraPosition.y, currentCameraPosition.z);
+    
+    renderer.render(scene, camera);
 }
 
-// Start animation
-animate();
+// Set up scroll triggers
+function setupScrollTriggers() {
+    // Main scroll progress tracker for camera movement
+    const tl = gsap.timeline({
+        scrollTrigger: {
+            trigger: "body",
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 1
+        }
+    });
+    
+    // Camera movement sequence
+    tl.to(targetCameraPosition, {
+        z: 5, // Move slightly into the tunnel
+        duration: 10
+    })
+    .to(targetCameraPosition, {
+        z: -5, // Move deeper into the tunnel for "You jump" text
+        duration: 10
+    })
+    .to(targetCameraPosition, {
+        z: -15, // Move to the black hole area for "We jump" text
+        duration: 10
+    })
+    .to(targetCameraPosition, {
+        z: -25, // Move through the black hole
+        duration: 10
+    });
+    
+    // Text animations
+    ScrollTrigger.create({
+        trigger: "#jump",
+        start: "top center",
+        end: "bottom center",
+        onEnter: () => {
+            gsap.to("#jump", { opacity: 1, duration: 1 });
+        },
+        onLeave: () => {
+            gsap.to("#jump", { opacity: 0, duration: 1 });
+        },
+        onEnterBack: () => {
+            gsap.to("#jump", { opacity: 1, duration: 1 });
+        },
+        onLeaveBack: () => {
+            gsap.to("#jump", { opacity: 0, duration: 1 });
+        }
+    });
+    
+    ScrollTrigger.create({
+        trigger: "#jump2",
+        start: "top center",
+        end: "bottom center",
+        onEnter: () => {
+            gsap.to("#jump2", { opacity: 1, duration: 1 });
+            
+            // Start showing black hole
+            gsap.to(blackHoleUniforms.uIntensity, {
+                value: 0.9,
+                duration: 2
+            });
+        },
+        onLeave: () => {
+            gsap.to("#jump2", { opacity: 0, duration: 1 });
+        },
+        onEnterBack: () => {
+            gsap.to("#jump2", { opacity: 1, duration: 1 });
+        },
+        onLeaveBack: () => {
+            gsap.to("#jump2", { opacity: 0, duration: 1 });
+        }
+    });
+    
+    // Black hole expansion and transition to content
+    ScrollTrigger.create({
+        trigger: "#about",
+        start: "top 80%",
+        onEnter: () => {
+            // Expand black hole
+            gsap.to(blackHoleUniforms.uRadius, {
+                value: 0.8,
+                duration: 2
+            });
+            
+            // Move black hole forward
+            gsap.to(blackHole.position, {
+                z: -15,
+                duration: 2
+            });
+            
+            // Increase black hole intensity
+            gsap.to(blackHoleUniforms.uIntensity, {
+                value: 1.0,
+                duration: 1
+            });
+            
+            // Fade out all rings
+            rings.forEach(ring => {
+                gsap.to(ring.material, {
+                    opacity: 0,
+                    duration: 1.5
+                });
+            });
+        }
+    });
+    
+    // Intro content animation
+    gsap.from(".intro-content h1", {
+        y: 50,
+        opacity: 0,
+        duration: 1,
+        delay: 0.5
+    });
+    
+    gsap.from(".footer", {
+        y: 30,
+        opacity: 0,
+        duration: 1,
+        delay: 1
+    });
+    
+    // Content section animations
+    const contentSections = [".about-section", "#principles", "#team", "#portfolio"];
+    
+    contentSections.forEach(section => {
+        gsap.from(`${section} h2, ${section} h3, ${section} p, ${section} .number`, {
+            y: 30,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.2,
+            scrollTrigger: {
+                trigger: section,
+                start: "top 80%"
+            }
+        });
+    });
+}
+
+// Add mouse interaction for tilt effect
+function addMouseTiltEffect() {
+    document.addEventListener('mousemove', (event) => {
+        const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+        const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        
+        // Subtle camera tilt based on mouse position
+        gsap.to(camera.rotation, {
+            x: mouseY * 0.05,
+            y: mouseX * 0.05,
+            duration: 1
+        });
+    });
+}
+
+// Smooth scrolling for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+            window.scrollTo({
+                top: targetElement.offsetTop,
+                behavior: 'smooth'
+            });
+        }
+    });
+});
+
+// Initialize when document is loaded
+window.addEventListener('DOMContentLoaded', () => {
+    // Start loading the scene
+    init();
+    addMouseTiltEffect();
+    
+    // Hide preloader after a slight delay to ensure WebGL is ready
+    setTimeout(() => {
+        const preloader = document.getElementById('preloader');
+        preloader.classList.add('hidden');
+        
+        // Add entrance animation for the content
+        gsap.from('.logo, .nav', {
+            y: -50,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.2,
+            delay: 0.5
+        });
+    }, 1000);
+});

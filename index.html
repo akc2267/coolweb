@@ -3,150 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Topology Scroll Effect</title>
+    <title>Topology</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="preloader" id="preloader">
+        <div class="preloader-logo">Topology</div>
+    </div>
+    
+    <div id="webgl-container"></div>
+    
     <header class="header">
+        <div class="logo">Topology</div>
         <nav class="nav">
-            <a href="#" class="logo"><img src="img/logo.svg" alt="Topology Logo" width="30" height="30"> Topology</a>
-            <ul class="nav-links">
-                <li><a href="#about">About</a></li>
-                <li><a href="#principles">Principles</a></li>
-                <li><a href="#team">Team</a></li>
-                <li><a href="#portfolio">Portfolio</a></li>
+            <ul>
+                <li><a href="#about">ABOUT</a></li>
+                <li><a href="#principles">PRINCIPLES</a></li>
+                <li><a href="#team">TEAM</a></li>
+                <li><a href="#portfolio">PORTFOLIO</a></li>
             </ul>
         </nav>
     </header>
 
-    <main class="scroll-container">
-        <!-- Hero Section -->
-        <section class="hero-section" id="home">
-            <div class="hero-content">
-                <h1 class="hero-title">Meet us <br>at the edge.</h1>
-                <p class="hero-tagline">We're a frontier tech venture firm with an engineering-first approach.</p>
-            </div>
-            <div class="hero-footer">
-                <div class="split-border"></div>
-                <p class="copyright">Topology ©2025</p>
-                <a href="#about" class="explore-link">Explore <span class="arrow">↓</span></a>
-            </div>
-        </section>
-
-        <!-- WebGL Animation Sections -->
-        <div class="scroll-spacer webgl-start"></div>
-        
-        <section class="webgl-section">
-            <h2 class="webgl-title">You jump...</h2>
-        </section>
-        
-        <div class="scroll-spacer"></div>
-        
-        <section class="webgl-section">
-            <h2 class="webgl-title">We jump...</h2>
-        </section>
-        
-        <div class="scroll-spacer webgl-end"></div>
-
-        <!-- About Section -->
-        <section class="content-section" id="about">
-            <div class="container">
-                <div class="section-header">
-                    <div class="logo-container">
-                        <div class="animated-logo"><img src="img/logo.svg" alt="Topology Logo" width="100" height="100"></div>
+    <main>
+        <section class="intro-section" id="intro">
+            <div class="intro-content">
+                <h1>Meet us<br>at the edge.</h1>
+                <div class="footer">
+                    <div class="footer-line"></div>
+                    <div class="footer-content">
+                        <span>Topology ©2025</span>
+                        <a href="#about" class="scroll-down">EXPLORE <span class="arrow">↓</span></a>
                     </div>
-                    <h2 class="section-title">Where our name comes from</h2>
-                </div>
-                <div class="section-content">
-                    <p>Inspired by topological dimension reduction — a mathematical and machine learning technique that simplifies complex, high‑dimensional data while preserving essential features and core qualities.</p>
-                    <p>We see our work as similar: distilling intricate webs of information into key insights that drive high‑conviction investments and long term partnerships.</p>
                 </div>
             </div>
         </section>
 
-        <!-- What We Do Section -->
-        <section class="content-section" id="principles">
-            <div class="container">
-                <div class="section-content">
-                    <div class="numbered-heading">
-                        <span class="number">01.</span>
-                        <h3 class="heading">What we do.</h3>
-                    </div>
-                    <p>We partner with brilliant technologists who have unreasonable ambition. We dream big and are devoted to advancing the intersection of technology and humanity. We are currently focused on AI, decentralized systems, and neurotech.</p>
-                    
-                    <div class="numbered-heading">
-                        <span class="number">02.</span>
-                        <h3 class="heading">How we do it.</h3>
-                    </div>
-                    <p>We are extremely selective in who we partner with. Straight up — we have a network we're phenomenally proud of, are fun to work with, deeply technical, and run through walls to help our founders win.</p>
-                </div>
+        <section class="text-section" id="jump">
+            <h2>You jump...</h2>
+        </section>
+
+        <section class="text-section" id="jump2">
+            <h2>We jump...</h2>
+        </section>
+
+        <section class="about-section" id="about">
+            <div class="logo-container">
+                <div class="about-logo">Topology</div>
+            </div>
+            <h2>Where our name comes from</h2>
+            <div class="about-content">
+                <p>Inspired by topological dimension reduction — a mathematical and machine learning technique that simplifies complex, high‑dimensional data while preserving essential features and core qualities.</p>
+                <p>We see our work as similar: distilling intricate webs of information into key insights that drive high‑conviction investments and long term partnerships.</p>
             </div>
         </section>
 
-        <!-- Team Section -->
-        <section class="content-section" id="team">
-            <div class="container">
-                <h2 class="section-title">Team</h2>
-                <div class="team-grid">
-                    <div class="team-member">
-                        <div class="member-image"></div>
-                        <h3 class="member-name">Casey Caruso</h3>
-                        <p class="member-role">Investing [x‑Google, x‑Bessemer, x‑Paradigm]</p>
-                    </div>
-                    <div class="team-member">
-                        <div class="member-image"></div>
-                        <h3 class="member-name">Stella Liu</h3>
-                        <p class="member-role">Platform [x‑Jungle, x-HF0]</p>
-                    </div>
-                    <div class="team-member">
-                        <div class="member-image"></div>
-                        <h3 class="member-name">Hunter Harloff</h3>
-                        <p class="member-role">Engineer in Residence [x‑Citadel]</p>
-                    </div>
-                </div>
-                
-                <h3 class="supporters-title">Supported by:</h3>
-                <ul class="supporters-list">
-                    <li>Co-founder of OpenAI</li>
-                    <li>Marc Andreessen</li>
-                    <li>Co-author of GPT4</li>
-                    <li>AI Chairman at Johns Hopkins</li>
-                    <li>Chris Dixon</li>
-                </ul>
+        <section class="section" id="principles">
+            <div class="section-item">
+                <div class="number">01.</div>
+                <h3>What we do.</h3>
+                <p>We partner with brilliant technologists who have unreasonable ambition. We dream big and are devoted to advancing the intersection of technology and humanity. We are currently focused on AI, decentralized systems, and neurotech.</p>
+            </div>
+            <div class="section-item">
+                <div class="number">02.</div>
+                <h3>How we do it.</h3>
+                <p>We are extremely selective in who we partner with. Straight up — we have a network we're phenomenally proud of, are fun to work with, deeply technical, and run through walls to help our founders win.</p>
             </div>
         </section>
 
-        <!-- Portfolio Section -->
-        <section class="content-section" id="portfolio">
-            <div class="container">
-                <h2 class="section-title">Portfolio</h2>
-                <div class="portfolio-grid">
-                    <div class="portfolio-item">
-                        <div class="portfolio-logo"></div>
-                    </div>
-                    <div class="portfolio-item">
-                        <div class="portfolio-logo"></div>
-                    </div>
-                    <div class="portfolio-item">
-                        <div class="portfolio-logo"></div>
-                    </div>
-                    <div class="portfolio-item">
-                        <div class="portfolio-logo"></div>
-                    </div>
-                    <div class="portfolio-item">
-                        <div class="portfolio-logo"></div>
-                    </div>
-                    <div class="portfolio-item">
-                        <div class="portfolio-logo"></div>
-                    </div>
-                </div>
-            </div>
+        <section class="section" id="team">
+            <h2>Team</h2>
+            <!-- Team content would go here -->
+        </section>
+
+        <section class="section" id="portfolio">
+            <h2>Portfolio</h2>
+            <!-- Portfolio content would go here -->
         </section>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="js/shaders.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
