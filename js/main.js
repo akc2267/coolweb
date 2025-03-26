@@ -31,7 +31,7 @@ function init() {
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setClearColor(0x000000, 0);
+    renderer.setClearColor(0x111111, 0); // Changed from 0x000000 to 0x111111 to match the body background
     document.getElementById('webgl-container').appendChild(renderer.domElement);
     
     // Create rainbow tunnel
@@ -50,14 +50,25 @@ function init() {
     setupScrollTriggers();
 }
 
-// Create rainbow tunnel with shader rings
+// Create rainbow tunnel with shader rings - more rings and rainbow colors
 function createRainbowTunnel() {
-    const ringCount = 25;
+    const ringCount = 40; // Increased to 40 for maximum effect
     const colorOffsetStep = 1.0 / ringCount;
+    
+    // Pre-defined vibrant rainbow colors to ensure visibility
+    const rainbowColors = [
+        new THREE.Color(1.0, 0.0, 0.0), // Red
+        new THREE.Color(1.0, 0.5, 0.0), // Orange
+        new THREE.Color(1.0, 1.0, 0.0), // Yellow
+        new THREE.Color(0.0, 1.0, 0.0), // Green
+        new THREE.Color(0.0, 1.0, 1.0), // Cyan
+        new THREE.Color(0.0, 0.0, 1.0), // Blue
+        new THREE.Color(0.8, 0.0, 1.0)  // Purple
+    ];
     
     for (let i = 0; i < ringCount; i++) {
         // Create ring geometry - larger at the start, smaller toward the end
-        const radius = 10 - i * 0.2;
+        const radius = 12 - i * 0.18; // Larger radius and smaller reduction for better visibility
         const geometry = new THREE.PlaneGeometry(radius * 2, radius * 2);
         
         // Create uniform values for this ring
@@ -66,22 +77,27 @@ function createRainbowTunnel() {
             uColorOffset: { value: i * colorOffsetStep }
         };
         
-        // Create shader material
+        // Create shader material with improved opacity for better visibility
         const material = new THREE.ShaderMaterial({
             vertexShader: ringVertexShader,
             fragmentShader: ringFragmentShader,
             uniforms: ringUniforms,
             transparent: true,
             depthWrite: false,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            opacity: 1.0, // Maximum opacity for better visibility
+            blending: THREE.AdditiveBlending // Use additive blending for more vibrant colors
         });
         
-        // Create mesh and position it
+        // Create mesh and position it with closer spacing
         const ring = new THREE.Mesh(geometry, material);
-        ring.position.z = -i * 1.2;
+        ring.position.z = -i * 0.9; // Reduced spacing from 1.2 to 0.9 for denser tunnel
         
         // Add subtle initial rotation
         ring.rotation.z = Math.random() * Math.PI * 2;
+        // Add some X/Y variation for more organic feel
+        ring.position.x = (Math.random() - 0.5) * 0.5;
+        ring.position.y = (Math.random() - 0.5) * 0.5;
         
         // Store uniform reference for animation
         ring.userData.uniforms = ringUniforms;
